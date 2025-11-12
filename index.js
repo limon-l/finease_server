@@ -6,8 +6,7 @@ import transactionsRoutes from "./routes/transactions.js";
 import Transaction from "./models/Transaction.js";
 
 const app = express();
-const PORT = 5000;
-connectDB();
+const PORT = process.env.PORT || 5000;
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -27,12 +26,10 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
+      if (allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+        return callback(null, true);
       }
-      return callback(null, true);
+      return callback(new Error("CORS not allowed"), false);
     },
     credentials: true,
   })
