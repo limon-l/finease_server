@@ -18,7 +18,12 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: "https://dreamy-raindrop-4eae32.netlify.app/",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/transactions", transactionsRoutes);
