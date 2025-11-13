@@ -52,27 +52,6 @@ app.get("/transactions", async (req, res) => {
   }
 });
 
-app.get("/transactions/:id", async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Invalid transaction ID" });
-  }
-
-  try {
-    const transaction = await Transaction.findById(id);
-    if (!transaction)
-      return res.status(404).json({ message: "Transaction not found" });
-
-    res.status(200).json(transaction);
-  } catch (err) {
-    console.error("Error fetching transaction:", err);
-    res
-      .status(500)
-      .json({ message: "Server error while fetching transaction" });
-  }
-});
-
 app.get("/transactions/category-total", async (req, res) => {
   try {
     const { email, category } = req.query;
@@ -94,6 +73,28 @@ app.get("/transactions/category-total", async (req, res) => {
   } catch (err) {
     console.error("Error in category-total:", err);
     res.status(500).json({ message: err.message || "Server error" });
+  }
+});
+
+app.get("/transactions/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid transaction ID" });
+  }
+
+  try {
+    const transaction = await Transaction.findById(id);
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    res.status(200).json(transaction);
+  } catch (err) {
+    console.error("Error fetching transaction:", err);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching transaction" });
   }
 });
 
