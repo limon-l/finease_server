@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import { connectDB } from "./db.js";
+import dotenv from "dotenv";
 import transactionsRoutes from "./routes/transactions.js";
 import Transaction from "./models/Transaction.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,18 +15,18 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Middleware
 const allowedOrigins = [
   "https://dreamy-raindrop-4eae32.netlify.app",
   "http://localhost:5173",
 ];
 
+// Middleware
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
       const cleanOrigin = origin.replace(/\/$/, "");
-      if (allowedOrigins.indexOf(cleanOrigin) === -1) {
+      if (!allowedOrigins.includes(cleanOrigin)) {
         const msg =
           "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
@@ -59,10 +61,8 @@ app.get("/transactions/:id", async (req, res) => {
 
   try {
     const transaction = await Transaction.findById(id);
-
-    if (!transaction) {
+    if (!transaction)
       return res.status(404).json({ message: "Transaction not found" });
-    }
 
     res.status(200).json(transaction);
   } catch (err) {
@@ -80,11 +80,11 @@ app.get("/transactions/category-total", async (req, res) => {
       return res.status(400).json({ message: "Missing parameters" });
 
     const result = await Transaction.aggregate([
-      { $match: { email: email, category: category } },
+      { $match: { email, category } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
-    const total = result[0] ? result[0].total : 0;
+    const total = result.length > 0 ? result[0].total : 0;
     res.json({ total });
   } catch (err) {
     console.error("Error in category-total:", err);
@@ -92,7 +92,7 @@ app.get("/transactions/category-total", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => res.send("FinEase Backend running"));
+app.get("/", (req, res) => res.send("FinEase Backend running successfully!"));
 
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
