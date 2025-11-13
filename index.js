@@ -41,6 +41,8 @@ app.use(express.json());
 
 app.use("/transactions", transactionsRoutes);
 
+app.use("/api/transactions", transactionsRoutes);
+
 app.get("/transactions", async (req, res) => {
   try {
     const { email } = req.query;
