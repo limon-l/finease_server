@@ -80,15 +80,20 @@ app.get("/transactions/category-total", async (req, res) => {
       return res.status(400).json({ message: "Missing parameters" });
 
     const result = await Transaction.aggregate([
-      { $match: { email, category } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
+      { $match: { email: email, category: category } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $toDouble: "$amount" } },
+        },
+      },
     ]);
 
-    const total = result.length > 0 ? result[0].total : 0;
+    const total = result[0] ? result[0].total : 0;
     res.json({ total });
   } catch (err) {
     console.error("Error in category-total:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message || "Server error" });
   }
 });
 
